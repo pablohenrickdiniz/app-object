@@ -11,31 +11,30 @@
     AppObject.prototype.set = function (options) {
         var self = this;
         if (options instanceof Object) {
-            Object.keys(self).forEach(function (key) {
-                if (options[key] !== undefined) {
-                    var newValue = options[key];
-                    var oldValue = self[key];
+            Object.keys(options).forEach(function(key){
+                var newValue = options[key];
+                var oldValue = self[key];
+                if (oldValue !== newValue) {
+                    if (self._bfrSet === undefined) {
+                        self._bfrSet = {};
+                    }
+
+                    if (self._bfrSet[key] !== undefined) {
+                        newValue = self._bfrSet[key](oldValue, newValue);
+                    }
                     if (oldValue !== newValue) {
-                        if (self._bfrSet === undefined) {
-                            self._bfrSet = {};
-                        }
-
-                        if (self._bfrSet[key] !== undefined) {
-                            newValue = self._bfrSet[key](oldValue, newValue);
-                        }
-
-
-                        if (oldValue !== newValue) {
+                        if(self[key] !== undefined){
                             self[key] = newValue;
-                            if (self._changed === undefined) {
-                                self._changed = {};
-                            }
-                            self._changed[key] = true;
+                        }
+
+                        if (self._changed === undefined) {
+                            self._changed = {};
+                        }
+                        self._changed[key] = true;
 
 
-                            if (self._changeCallbacks[key] !== undefined) {
-                                self._changeCallbacks[key](newValue);
-                            }
+                        if (self._changeCallbacks[key] !== undefined) {
+                            self._changeCallbacks[key](newValue);
                         }
                     }
                 }
